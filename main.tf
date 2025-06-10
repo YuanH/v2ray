@@ -72,7 +72,7 @@ resource "aws_security_group" "open" {
 }
 
 resource "aws_instance" "linux" {
-  ami                    = "ami-0c55b159cbfafe1f0" # Amazon Linux 2023 AMI for us-west-2
+  ami                    = "ami-0418306302097dbff" # Amazon Linux 2023 AMI for us-west-2
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.open.id]
