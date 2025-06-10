@@ -73,8 +73,8 @@ resource "aws_security_group" "open" {
 
 
 resource "aws_key_pair" "deployer" {
-    key_name   = "your-key-pair-name" # Replace with your desired key pair name
-    public_key = file("~/.ssh/id_rsa.pub") # Path to your public key file
+    key_name   = "id_rsa.pub" # Replace with your desired key pair name
+    public_key = file("id_rsa.pub") # Place id_rsa.pub in the same directory as this main.tf
 }
 
 resource "aws_iam_role" "ssm_role" {
