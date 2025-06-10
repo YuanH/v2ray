@@ -2,6 +2,26 @@ provider "aws" {
   region = "us-west-2"
 }
 
+
+terraform {
+  backend "remote" {
+    organization = "YuanHuang" # Replace with your Terraform Cloud organization name
+
+    workspaces {
+      name = "v2ray" # Replace with your workspace name
+    }
+  }
+
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
 }
