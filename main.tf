@@ -71,14 +71,49 @@ resource "aws_security_group" "open" {
   }
 }
 
-resource "aws_instance" "linux" {
-  ami                    = "ami-0418306302097dbff" # Amazon Linux 2023 AMI for us-west-2
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.main.id
-  vpc_security_group_ids = [aws_security_group.open.id]
-  associate_public_ip_address = true
 
-  tags = {
-    Name = "free-tier-linux"
-  }
+resource "aws_key_pair" "deployer" {
+    key_name   = "your-key-pair-name" # Replace with your desired key pair name
+    public_key = file("~/.ssh/id_rsa.pub") # Path to your public key file
+}
+
+resource "aws_iam_role" "ssm_role" {
+    name = "ec2-ssm-role"
+
+    assume_role_policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+                Effect = "Allow"
+                Principal = {
+                    Service = "ec2.amazonaws.com"
+                }
+                Action = "sts:AssumeRole"
+            }
+        ]
+    })
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_attach" {
+    role       = aws_iam_role.ssm_role.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "ssm_profile" {
+    name = "ec2-ssm-instance-profile"
+    role = aws_iam_role.ssm_role.name
+}
+
+resource "aws_instance" "linux_with_ssm" {
+    ami                         = "ami-0418306302097dbff"
+    instance_type               = "t2.micro"
+    subnet_id                   = aws_subnet.main.id
+    vpc_security_group_ids      = [aws_security_group.open.id]
+    associate_public_ip_address = true
+    key_name                    = aws_key_pair.deployer.key_name
+    iam_instance_profile        = aws_iam_instance_profile.ssm_profile.name
+
+    tags = {
+        Name = "free-tier-linux-ssm"
+    }
 }
